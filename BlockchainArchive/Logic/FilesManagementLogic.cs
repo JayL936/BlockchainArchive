@@ -11,12 +11,12 @@ namespace BlockchainArchive.Logic
 {
     public class FilesManagementLogic : IFilesManagementLogic
     {
-        private IFilesDatabase _filesDatabase;
+        private IFilesRepository _filesRepository;
         private IBlobStorage _blobStorage;
 
-        public FilesManagementLogic(IFilesDatabase filesDatabase, IBlobStorage blobStorage)
+        public FilesManagementLogic(IFilesRepository filesRepository, IBlobStorage blobStorage)
         {
-            _filesDatabase = filesDatabase;
+            _filesRepository = filesRepository;
             _blobStorage = blobStorage;
         }
 
@@ -29,10 +29,15 @@ namespace BlockchainArchive.Logic
             {
                 StorageUrl = storageUri.AbsolutePath,
                 Guid = Guid.NewGuid(),
-                Name = uploadedFile.Name
+                Name = uploadedFile.FileName
             };
 
-            _filesDatabase.Save(file);
+            await _filesRepository.SaveAsync(file);
+        }
+
+        public async Task<IEnumerable<File>> GetFilesAsync()
+        {
+            return await _filesRepository.GetFilesAsync();
         }
     }
 }

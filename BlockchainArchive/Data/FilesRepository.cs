@@ -1,4 +1,5 @@
 ﻿using BlockchainArchive.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,19 +7,24 @@ using System.Threading.Tasks;
 
 namespace BlockchainArchive.Data
 {
-    public class FilesDatabase : IFilesDatabase
+    public class FilesRepository : IFilesRepository
     {
         private ApplicationDbContext _context;
 
-        public FilesDatabase(ApplicationDbContext context)
+        public FilesRepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public async void Save(File file)
+        public async Task SaveAsync(File file)
         {
             await _context.AddAsync(file);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<File>> GetFilesAsync()
+        {
+            return await _context.Files.ToListAsync();
         }
     }
 }

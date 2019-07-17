@@ -15,18 +15,16 @@ namespace BlockchainArchive.Controllers
     public class FilesController : Controller
     {
         private readonly IFilesManagementLogic _filesManagementLogic;
-        private readonly ApplicationDbContext _context;
 
-        public FilesController(ApplicationDbContext context, IFilesManagementLogic filesManagementLogic)
+        public FilesController(IFilesManagementLogic filesManagementLogic)
         {
-            _context = context;
             _filesManagementLogic = filesManagementLogic;
         }
 
         // GET: Files
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Files.ToListAsync());
+            return View(await _filesManagementLogic.GetFilesAsync());
         }
 
         // GET: Files/Details/5

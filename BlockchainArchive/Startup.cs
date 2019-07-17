@@ -46,7 +46,7 @@ namespace BlockchainArchive
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddScoped<IFilesDatabase, FilesDatabase>();
+            services.AddScoped<IFilesRepository, FilesRepository>();
             services.AddScoped<IBlobStorage>(b => new BlobStorage(Configuration.GetConnectionString("StorageAccount")));
             services.AddScoped<IFilesManagementLogic, FilesManagementLogic>();
             services.AddScoped(provider => new Lazy<IFilesManagementLogic>(provider.GetService<IFilesManagementLogic>));
