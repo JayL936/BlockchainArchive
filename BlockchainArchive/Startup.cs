@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using BlockchainArchive.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using BlockchainArchive.Storage;
+using BlockchainArchive.Logic;
 
 namespace BlockchainArchive
 {
@@ -43,6 +45,11 @@ namespace BlockchainArchive
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddScoped<IFilesDatabase, FilesDatabase>();
+            services.AddScoped<IBlobStorage>(b => new BlobStorage(Configuration.GetConnectionString("StorageAccount")));
+            services.AddScoped<IFilesManagementLogic, FilesManagementLogic>();
+            services.AddScoped(provider => new Lazy<IFilesManagementLogic>(provider.GetService<IFilesManagementLogic>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

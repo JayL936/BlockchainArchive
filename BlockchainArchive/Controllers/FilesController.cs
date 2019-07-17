@@ -2,94 +2,155 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using BlockchainArchive.Data;
+using BlockchainArchive.Models;
+using Microsoft.AspNetCore.Http;
+using BlockchainArchive.Logic;
 
 namespace BlockchainArchive.Controllers
 {
-    [Authorize]
     public class FilesController : Controller
     {
-        // GET: Files
-        public ActionResult Index()
+        private readonly IFilesManagementLogic _filesManagementLogic;
+        private readonly ApplicationDbContext _context;
+
+        public FilesController(ApplicationDbContext context, IFilesManagementLogic filesManagementLogic)
         {
-            return View();
+            _context = context;
+            _filesManagementLogic = filesManagementLogic;
+        }
+
+        // GET: Files
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.Files.ToListAsync());
         }
 
         // GET: Files/Details/5
-        public ActionResult Details(int id)
+        public async Task<IActionResult> Details(Guid? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var file = await _context.Files
+                .FirstOrDefaultAsync(m => m.Guid == id);
+            if (file == null)
+            {
+                return NotFound();
+            }
+
+            return View(file);
         }
 
         // GET: Files/Upload
-        public ActionResult Upload()
+        public IActionResult Upload()
         {
             return View();
         }
 
-        // POST: Files/Create
+        // POST: Files/Upload
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Upload(IFormCollection collection)
+        public async Task<IActionResult> Upload(IFormFile file)
         {
-            try
-            {
-                // TODO: Add insert logic here
+            if (file == null || file.Length == 0)
+                return Content("File not valid.");
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            await _filesManagementLogic.SaveUploadedFile(file);
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Files/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(Guid? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var file = await _context.Files.FindAsync(id);
+            if (file == null)
+            {
+                return NotFound();
+            }
+            return View(file);
         }
 
         // POST: Files/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Guid,Name,StorageUrl,BlockReference")] File file)
         {
-            try
+            if (id != file.Guid)
             {
-                // TODO: Add update logic here
+                return NotFound();
+            }
 
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(file);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!FileExists(file.Guid))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(file);
         }
 
         // GET: Files/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var file = await _context.Files
+                .FirstOrDefaultAsync(m => m.Guid == id);
+            if (file == null)
+            {
+                return NotFound();
+            }
+
+            return View(file);
         }
 
         // POST: Files/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            try
-            {
-                // TODO: Add delete logic here
+            var file = await _context.Files.FindAsync(id);
+            _context.Files.Remove(file);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+        private bool FileExists(Guid id)
+        {
+            return _context.Files.Any(e => e.Guid == id);
         }
     }
 }
