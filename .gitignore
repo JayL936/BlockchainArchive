@@ -5,3 +5,6 @@
 /.vs/BlockchainArchive/v16/Server/sqlite3/storage.ide
 obj
 bin
+/.vs/BlockchainArchive/v16/Server/sqlite3/storage.ide-shm
+/.vs/BlockchainArchive/v16/Server/sqlite3/storage.ide-wal
+/BlockchainArchive/BlockchainArchive.csproj.user
