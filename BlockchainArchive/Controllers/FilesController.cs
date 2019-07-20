@@ -9,9 +9,11 @@ using BlockchainArchive.Data;
 using BlockchainArchive.Models;
 using Microsoft.AspNetCore.Http;
 using BlockchainArchive.Logic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BlockchainArchive.Controllers
 {
+    [Authorize]
     public class FilesController : Controller
     {
         private readonly IFilesManagementLogic _filesManagementLogic;
@@ -30,13 +32,12 @@ namespace BlockchainArchive.Controllers
         // GET: Files/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            if (id == null)
+            if (id == null || !id.HasValue)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            var file = await _context.Files
-                .FirstOrDefaultAsync(m => m.Guid == id);
+            var file = await _filesManagementLogic.GetFileAsync(id.Value);
             if (file == null)
             {
                 return NotFound();
@@ -59,7 +60,7 @@ namespace BlockchainArchive.Controllers
         public async Task<IActionResult> Upload(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return Content("File not valid.");
+                return BadRequest();
 
             await _filesManagementLogic.SaveUploadedFile(file);
 
@@ -69,12 +70,12 @@ namespace BlockchainArchive.Controllers
         // GET: Files/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            if (id == null)
+            if (id == null || !id.HasValue)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            var file = await _context.Files.FindAsync(id);
+            var file = await _filesManagementLogic.GetFileAsync(id.Value);
             if (file == null)
             {
                 return NotFound();
@@ -91,42 +92,31 @@ namespace BlockchainArchive.Controllers
         {
             if (id != file.Guid)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(file);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FileExists(file.Guid))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                var result = await _filesManagementLogic.UpdateFileAsync(file);
+
+                if (result == StatusCodes.Status200OK)
+                    return RedirectToAction(nameof(Index));
+                else
+                    return new StatusCodeResult(result);
             }
+
             return View(file);
         }
 
         // GET: Files/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            if (id == null)
+            if (id == null || !id.HasValue)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            var file = await _context.Files
-                .FirstOrDefaultAsync(m => m.Guid == id);
+            var file = await _filesManagementLogic.GetFileAsync(id.Value);
             if (file == null)
             {
                 return NotFound();
@@ -140,15 +130,8 @@ namespace BlockchainArchive.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var file = await _context.Files.FindAsync(id);
-            _context.Files.Remove(file);
-            await _context.SaveChangesAsync();
+            await _filesManagementLogic.DeleteFileAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool FileExists(Guid id)
-        {
-            return _context.Files.Any(e => e.Guid == id);
         }
     }
 }

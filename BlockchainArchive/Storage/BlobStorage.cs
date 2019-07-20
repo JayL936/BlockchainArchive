@@ -43,5 +43,12 @@ namespace BlockchainArchive.Storage
 
             return blob.Uri;
         }
+
+        public void DeleteFile(string fileName)
+        {
+            var blob = _cloudBlobContainer.GetBlockBlobReference(fileName);
+            if (blob != null)
+                blob.Delete();
+        }
     }
 }

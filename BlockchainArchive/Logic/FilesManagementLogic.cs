@@ -2,6 +2,7 @@
 using BlockchainArchive.Models;
 using BlockchainArchive.Storage;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,42 @@ namespace BlockchainArchive.Logic
         public async Task<IEnumerable<File>> GetFilesAsync()
         {
             return await _filesRepository.GetFilesAsync();
+        }
+
+        public async Task<File> GetFileAsync(Guid guid)
+        {
+            return await _filesRepository.GetFileAsync(guid);
+        }
+
+        public async Task DeleteFileAsync(Guid guid)
+        {
+            var file = await GetFileAsync(guid);
+            if (file != null)
+            {
+                _blobStorage.DeleteFile(file.Name);
+                _filesRepository.DeleteFile(file);
+            }
+        }
+
+        public async Task<int> UpdateFileAsync(File file)
+        {
+            try
+            {
+                _filesRepository.UpdateFile(file);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _filesRepository.FileExists(file.Guid))
+                {
+                    return StatusCodes.Status404NotFound;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return StatusCodes.Status200OK;
         }
     }
 }

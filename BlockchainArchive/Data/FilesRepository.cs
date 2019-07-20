@@ -26,5 +26,27 @@ namespace BlockchainArchive.Data
         {
             return await _context.Files.ToListAsync();
         }
+
+        public async Task<File> GetFileAsync(Guid guid)
+        {
+            return await _context.Files.FirstOrDefaultAsync(m => m.Guid == guid);
+        }
+
+        public void DeleteFile(File file)
+        {
+            _context.Remove(file);
+            _context.SaveChanges();
+        }
+
+        public void UpdateFile(File file)
+        {
+            _context.Update(file);
+            _context.SaveChanges();
+        }
+
+        public async Task<bool> FileExists(Guid guid)
+        {
+            return await _context.Files.AnyAsync(f => f.Guid == guid);
+        }
     }
 }

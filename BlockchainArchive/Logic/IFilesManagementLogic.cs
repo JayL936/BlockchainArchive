@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlockchainArchive.Models;
 using Microsoft.AspNetCore.Http;
@@ -9,5 +10,8 @@ namespace BlockchainArchive.Logic
     {
         Task SaveUploadedFile(IFormFile file);
         Task<IEnumerable<File>> GetFilesAsync();
+        Task<File> GetFileAsync(Guid guid);
+        Task DeleteFileAsync(Guid guid);
+        Task<int> UpdateFileAsync(File file);
     }
 }
