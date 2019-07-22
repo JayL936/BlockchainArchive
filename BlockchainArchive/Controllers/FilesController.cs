@@ -62,9 +62,12 @@ namespace BlockchainArchive.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest();
 
-            await _filesManagementLogic.SaveUploadedFile(file);
+            var isSuccess = await _filesManagementLogic.SaveUploadedFile(file);
 
-            return RedirectToAction(nameof(Index));
+            if (isSuccess)
+                return RedirectToAction(nameof(Index));
+            else
+                return new StatusCodeResult(StatusCodes.Status417ExpectationFailed);
         }
 
         // GET: Files/Edit/5

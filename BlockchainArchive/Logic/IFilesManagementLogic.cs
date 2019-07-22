@@ -8,7 +8,7 @@ namespace BlockchainArchive.Logic
 {
     public interface IFilesManagementLogic
     {
-        Task SaveUploadedFile(IFormFile file);
+        Task<bool> SaveUploadedFile(IFormFile file);
         Task<IEnumerable<File>> GetFilesAsync();
         Task<File> GetFileAsync(Guid guid);
         Task DeleteFileAsync(Guid guid);

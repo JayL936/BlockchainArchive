@@ -4,8 +4,10 @@ using BlockchainArchive.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace BlockchainArchive.Logic
@@ -14,14 +16,16 @@ namespace BlockchainArchive.Logic
     {
         private IFilesRepository _filesRepository;
         private IBlobStorage _blobStorage;
+        private IEthereumStorage _ethereumStorage;
 
-        public FilesManagementLogic(IFilesRepository filesRepository, IBlobStorage blobStorage)
+        public FilesManagementLogic(IFilesRepository filesRepository, IBlobStorage blobStorage, IEthereumStorage ethereumStorage)
         {
             _filesRepository = filesRepository;
             _blobStorage = blobStorage;
+            _ethereumStorage = ethereumStorage;
         }
 
-        public async Task SaveUploadedFile(IFormFile uploadedFile)
+        public async Task<bool> SaveUploadedFile(IFormFile uploadedFile)
         {
             var stream = uploadedFile.OpenReadStream();
             var storageUri = await _blobStorage.UploadFile(stream, uploadedFile.FileName);
@@ -33,7 +37,15 @@ namespace BlockchainArchive.Logic
                 Name = uploadedFile.FileName
             };
 
+            using (var md5 = MD5.Create())
+            {
+                var isSuccess = await _ethereumStorage.SendDocumentHashToChain(Convert.ToBase64String(md5.ComputeHash(stream)), file.Guid.ToString());
+                if (!isSuccess)
+                    return false;
+            }
+
             await _filesRepository.SaveAsync(file);
+            return true;
         }
 
         public async Task<IEnumerable<File>> GetFilesAsync()
