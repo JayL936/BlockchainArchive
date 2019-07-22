@@ -12,6 +12,7 @@ namespace BlockchainArchive.Models
         public Guid Guid { get; set; }
         public string Name { get; set; }
         public string StorageUrl { get; set; }
-        public string BlockReference { get; set; }
+
+        public ICollection<BlockchainHistory> HistoryEntries { get; set; }
     }
 }

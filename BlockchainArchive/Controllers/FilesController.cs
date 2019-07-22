@@ -43,7 +43,7 @@ namespace BlockchainArchive.Controllers
                 return NotFound();
             }
 
-            return View(file);
+            return View(new FileViewModel(file));
         }
 
         // GET: Files/Upload
@@ -70,45 +70,14 @@ namespace BlockchainArchive.Controllers
                 return new StatusCodeResult(StatusCodes.Status417ExpectationFailed);
         }
 
-        // GET: Files/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
-        {
-            if (id == null || !id.HasValue)
-            {
-                return BadRequest();
-            }
-
-            var file = await _filesManagementLogic.GetFileAsync(id.Value);
-            if (file == null)
-            {
-                return NotFound();
-            }
-            return View(file);
-        }
-
         // POST: Files/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Guid,Name,StorageUrl,BlockReference")] File file)
+        public async Task<IActionResult> Verify(Guid id)
         {
-            if (id != file.Guid)
-            {
-                return BadRequest();
-            }
-
-            if (ModelState.IsValid)
-            {
-                var result = await _filesManagementLogic.UpdateFileAsync(file);
-
-                if (result == StatusCodes.Status200OK)
-                    return RedirectToAction(nameof(Index));
-                else
-                    return new StatusCodeResult(result);
-            }
-
-            return View(file);
+            throw new NotImplementedException();
         }
 
         // GET: Files/Delete/5
@@ -125,7 +94,7 @@ namespace BlockchainArchive.Controllers
                 return NotFound();
             }
 
-            return View(file);
+            return View(new FileViewModel(file));
         }
 
         // POST: Files/Delete/5
