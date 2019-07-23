@@ -22,9 +22,19 @@ namespace BlockchainArchive.Data
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<File>> GetFilesAsync()
+        public async Task<IEnumerable<File>> GetFilesWithHistoryAsync()
         {
-            return await _context.Files.ToListAsync();
+            return await _context.Files
+                .Include(f => f.HistoryEntries)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<File> GetFileWithHistoryAsync(Guid guid)
+        {
+            return await _context.Files
+                .Include(f => f.HistoryEntries)
+                .FirstOrDefaultAsync(m => m.Guid == guid);
         }
 
         public async Task<File> GetFileAsync(Guid guid)

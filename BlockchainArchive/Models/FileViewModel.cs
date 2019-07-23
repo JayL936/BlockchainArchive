@@ -18,7 +18,7 @@ namespace BlockchainArchive.Models
             Guid = file.Guid;
             Name = file.Name;
             StorageUrl = file.StorageUrl;
-            LastHistoryEntry = file.HistoryEntries.OrderByDescending(h => h.Timestamp).FirstOrDefault();
+            LastHistoryEntry = file.HistoryEntries?.OrderByDescending(h => h.Timestamp).FirstOrDefault();
         }
     }
 }

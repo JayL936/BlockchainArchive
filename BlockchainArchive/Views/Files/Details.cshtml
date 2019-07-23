@@ -25,8 +25,17 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.HistoryEntries)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HistoryEntries)
+        <dd class="col-sm-10">
+            @if (Model.HistoryEntries != null)
+            {
+                foreach (var entry in Model.HistoryEntries)
+                {
+                    var dateTime = entry.Timestamp.ToString("dd-MM-yyyy HH:mm:ss");
+                    var value = string.Format($"{entry.Status} - {dateTime}");
+
+                    @Html.DisplayFor(modelitem => value);
+                }
+            }
         </dd>
     </dl>
 </div>

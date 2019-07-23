@@ -46,7 +46,7 @@ namespace BlockchainArchive.Storage
 
             var result = await getDocumentFunction.CallAsync<string>(guid);
 
-            return result == guid;
+            return result == hash;
         }
 
         private async Task<TransactionReceipt> MineAndGetReceiptAsync(string transactionHash)

@@ -26,7 +26,15 @@ namespace BlockchainArchive.Controllers
         // GET: Files
         public async Task<IActionResult> Index()
         {
-            return View(await _filesManagementLogic.GetFilesAsync());
+            var files = await _filesManagementLogic.GetFilesWithHistoryAsync();
+            var model = new List<FileViewModel>();
+
+            foreach(var file in files)
+            {
+                model.Add(new FileViewModel(file));
+            };
+
+            return View(model);
         }
 
         // GET: Files/Details/5
@@ -37,13 +45,13 @@ namespace BlockchainArchive.Controllers
                 return BadRequest();
             }
 
-            var file = await _filesManagementLogic.GetFileAsync(id.Value);
+            var file = await _filesManagementLogic.GetFileWithHistoryAsync(id.Value);
             if (file == null)
             {
                 return NotFound();
             }
 
-            return View(new FileViewModel(file));
+            return View(file);
         }
 
         // GET: Files/Upload
@@ -88,7 +96,7 @@ namespace BlockchainArchive.Controllers
                 return BadRequest();
             }
 
-            var file = await _filesManagementLogic.GetFileAsync(id.Value);
+            var file = await _filesManagementLogic.GetFileWithHistoryAsync(id.Value);
             if (file == null)
             {
                 return NotFound();

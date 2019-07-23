@@ -1,5 +1,6 @@
 ﻿using BlockchainArchive.Data;
 using BlockchainArchive.Models;
+using BlockchainArchive.Models.Enums;
 using BlockchainArchive.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +35,8 @@ namespace BlockchainArchive.Logic
             {
                 StorageUrl = storageUri.AbsolutePath,
                 Guid = Guid.NewGuid(),
-                Name = uploadedFile.FileName
+                Name = uploadedFile.FileName,
+                HistoryEntries = new List<BlockchainHistory>()                
             };
 
             using (var md5 = MD5.Create())
@@ -44,23 +46,29 @@ namespace BlockchainArchive.Logic
                     return false;
             }
 
+            file.HistoryEntries.Add(new BlockchainHistory
+            {
+                Timestamp = DateTime.Now,
+                Status = BlockchainStatuses.Verified
+            });
+
             await _filesRepository.SaveAsync(file);
             return true;
         }
 
-        public async Task<IEnumerable<File>> GetFilesAsync()
+        public async Task<IEnumerable<File>> GetFilesWithHistoryAsync()
         {
-            return await _filesRepository.GetFilesAsync();
+            return await _filesRepository.GetFilesWithHistoryAsync();
         }
 
-        public async Task<File> GetFileAsync(Guid guid)
+        public async Task<File> GetFileWithHistoryAsync(Guid guid)
         {
-            return await _filesRepository.GetFileAsync(guid);
+            return await _filesRepository.GetFileWithHistoryAsync(guid);
         }
 
         public async Task DeleteFileAsync(Guid guid)
         {
-            var file = await GetFileAsync(guid);
+            var file = await _filesRepository.GetFileAsync(guid);
             if (file != null)
             {
                 _blobStorage.DeleteFile(file.Name);

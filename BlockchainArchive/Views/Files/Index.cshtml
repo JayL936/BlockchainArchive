@@ -35,7 +35,13 @@
                     @Html.DisplayFor(modelItem => item.StorageUrl)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.LastHistoryEntry)
+                    @if (item.LastHistoryEntry != null)
+                    {
+                        var dateTime = item.LastHistoryEntry.Timestamp.ToString("dd-MM-yyyy HH:mm:ss");
+                        var value = string.Format($"{item.LastHistoryEntry.Status} - {dateTime}");
+
+                        @Html.DisplayFor(modelitem => value);
+                    }
                 </td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.Guid">Details</a> |
