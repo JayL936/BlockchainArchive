@@ -26,7 +26,15 @@ namespace BlockchainArchive.Controllers
         // GET: Files
         public async Task<IActionResult> Index()
         {
-            return View(await _filesManagementLogic.GetFilesAsync());
+            var files = await _filesManagementLogic.GetFilesWithHistoryAsync();
+            var model = new List<FileViewModel>();
+
+            foreach(var file in files)
+            {
+                model.Add(new FileViewModel(file));
+            };
+
+            return View(model);
         }
 
         // GET: Files/Details/5
@@ -37,7 +45,7 @@ namespace BlockchainArchive.Controllers
                 return BadRequest();
             }
 
-            var file = await _filesManagementLogic.GetFileAsync(id.Value);
+            var file = await _filesManagementLogic.GetFileWithHistoryAsync(id.Value);
             if (file == null)
             {
                 return NotFound();
@@ -62,25 +70,12 @@ namespace BlockchainArchive.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest();
 
-            await _filesManagementLogic.SaveUploadedFile(file);
+            var isSuccess = await _filesManagementLogic.SaveUploadedFile(file);
 
-            return RedirectToAction(nameof(Index));
-        }
-
-        // GET: Files/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
-        {
-            if (id == null || !id.HasValue)
-            {
-                return BadRequest();
-            }
-
-            var file = await _filesManagementLogic.GetFileAsync(id.Value);
-            if (file == null)
-            {
-                return NotFound();
-            }
-            return View(file);
+            if (isSuccess)
+                return RedirectToAction(nameof(Index));
+            else
+                return new StatusCodeResult(StatusCodes.Status417ExpectationFailed);
         }
 
         // POST: Files/Edit/5
@@ -88,24 +83,9 @@ namespace BlockchainArchive.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Guid,Name,StorageUrl,BlockReference")] File file)
+        public async Task<IActionResult> Verify(Guid id)
         {
-            if (id != file.Guid)
-            {
-                return BadRequest();
-            }
-
-            if (ModelState.IsValid)
-            {
-                var result = await _filesManagementLogic.UpdateFileAsync(file);
-
-                if (result == StatusCodes.Status200OK)
-                    return RedirectToAction(nameof(Index));
-                else
-                    return new StatusCodeResult(result);
-            }
-
-            return View(file);
+            throw new NotImplementedException();
         }
 
         // GET: Files/Delete/5
@@ -116,13 +96,13 @@ namespace BlockchainArchive.Controllers
                 return BadRequest();
             }
 
-            var file = await _filesManagementLogic.GetFileAsync(id.Value);
+            var file = await _filesManagementLogic.GetFileWithHistoryAsync(id.Value);
             if (file == null)
             {
                 return NotFound();
             }
 
-            return View(file);
+            return View(new FileViewModel(file));
         }
 
         // POST: Files/Delete/5

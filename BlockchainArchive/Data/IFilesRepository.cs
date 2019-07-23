@@ -8,7 +8,8 @@ namespace BlockchainArchive.Data
     public interface IFilesRepository
     {
         Task SaveAsync(File file);
-        Task<IEnumerable<File>> GetFilesAsync();
+        Task<IEnumerable<File>> GetFilesWithHistoryAsync();
+        Task<File> GetFileWithHistoryAsync(Guid guid);
         Task<File> GetFileAsync(Guid guid);
         void DeleteFile(File file);
         void UpdateFile(File file);

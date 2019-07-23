@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BlockchainArchive.Models.File>
+﻿@model IEnumerable<BlockchainArchive.Models.FileViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -19,7 +19,7 @@
                 @Html.DisplayNameFor(model => model.StorageUrl)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BlockReference)
+                @Html.DisplayNameFor(model => model.LastHistoryEntry)
             </th>
             <th></th>
         </tr>
@@ -35,12 +35,18 @@
                     @Html.DisplayFor(modelItem => item.StorageUrl)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.BlockReference)
+                    @if (item.LastHistoryEntry != null)
+                    {
+                        var dateTime = item.LastHistoryEntry.Timestamp.ToString("dd-MM-yyyy HH:mm:ss");
+                        var value = string.Format($"{item.LastHistoryEntry.Status} - {dateTime}");
+
+                        @Html.DisplayFor(modelitem => value);
+                    }
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Guid">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Guid">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Guid">Delete</a>
+                    <a asp-action="Delete" asp-route-id="@item.Guid">Delete</a> |
+                    <a asp-action="Verify" asp-route-id="@item.Guid">Verify</a>
                 </td>
             </tr>
         }

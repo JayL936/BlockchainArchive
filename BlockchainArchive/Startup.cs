@@ -50,6 +50,8 @@ namespace BlockchainArchive
             services.AddScoped<IBlobStorage>(b => new BlobStorage(Configuration.GetConnectionString("StorageAccount")));
             services.AddScoped<IFilesManagementLogic, FilesManagementLogic>();
             services.AddScoped(provider => new Lazy<IFilesManagementLogic>(provider.GetService<IFilesManagementLogic>));
+            services.AddScoped<IEthereumStorage>(e => 
+                new EthereumStorage(Configuration.GetSection("Ethereum").GetValue<string>("Address"), Configuration.GetSection("Ethereum").GetValue<string>("Password")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,4 +1,4 @@
-﻿@model BlockchainArchive.Models.File
+﻿@model BlockchainArchive.Models.FileViewModel
 
 @{
     ViewData["Title"] = "Delete";
@@ -24,10 +24,16 @@
             @Html.DisplayFor(model => model.StorageUrl)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BlockReference)
+            @Html.DisplayNameFor(model => model.LastHistoryEntry)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BlockReference)
+        <dd class="col-sm-10">
+            @if (Model.LastHistoryEntry != null)
+            {
+                var dateTime = Model.LastHistoryEntry.Timestamp.ToString("dd-MM-yyyy HH:mm:ss");
+                var value = string.Format($"{Model.LastHistoryEntry.Status} - {dateTime}");
+
+                @Html.DisplayFor(modelitem => value);
+            }
         </dd>
     </dl>
     
