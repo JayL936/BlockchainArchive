@@ -1,4 +1,5 @@
 ﻿using BlockchainArchive.Data;
+using BlockchainArchive.Data.Interfaces;
 using BlockchainArchive.Models;
 using BlockchainArchive.Models.Enums;
 using BlockchainArchive.Storage;
@@ -41,6 +42,7 @@ namespace BlockchainArchive.Logic
 
             using (var md5 = MD5.Create())
             {
+                stream.Position = 0;
                 var isSuccess = await _ethereumStorage.SendDocumentHashToChain(Convert.ToBase64String(md5.ComputeHash(stream)), file.Guid.ToString());
                 if (!isSuccess)
                     return false;
@@ -53,6 +55,33 @@ namespace BlockchainArchive.Logic
             });
 
             await _filesRepository.SaveAsync(file);
+            return true;
+        }
+
+        public async Task<bool> VerifyUploadedFile(Guid guid)
+        {
+            var file = await _filesRepository.GetFileAsync(guid);
+            if (file == null)
+                return false;
+
+            var stream = await _blobStorage.DownloadFile(file.Name);
+            if (stream == null)
+                return false;
+
+            var md5 = MD5.Create();
+            var blobHashValue = Convert.ToBase64String(md5.ComputeHash(stream));
+            var blockchainFileHashValue = await _ethereumStorage.GetDocumentHashFromChain(file.Guid.ToString());
+
+            var isValid = blobHashValue == blockchainFileHashValue;
+
+            var entry = new BlockchainHistory
+            {
+                FileGuid = file.Guid,
+                Timestamp = DateTime.Now,
+                Status = isValid ? BlockchainStatuses.Verified : BlockchainStatuses.Corrupted
+            };
+
+            await _filesRepository.SaveAsync(entry);
             return true;
         }
 

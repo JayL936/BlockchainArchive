@@ -44,6 +44,17 @@ namespace BlockchainArchive.Storage
             return blob.Uri;
         }
 
+        public async Task<Stream> DownloadFile(string fileName)
+        {
+            var blob = _cloudBlobContainer.GetBlockBlobReference(fileName);
+
+            MemoryStream downloadedStream = new MemoryStream();
+            await blob.DownloadToStreamAsync(downloadedStream);
+
+            downloadedStream.Position = 0;
+            return downloadedStream;
+        }
+
         public void DeleteFile(string fileName)
         {
             var blob = _cloudBlobContainer.GetBlockBlobReference(fileName);

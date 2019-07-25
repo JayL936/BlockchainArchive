@@ -17,5 +17,6 @@ namespace BlockchainArchive.Data
 
         public DbSet<File> Files { get; set; }
         public DbSet<BlockchainHistory> HistoryEntries { get; set; }
+        public DbSet<StoredContract> StoredContracts { get; set; }
     }
 }

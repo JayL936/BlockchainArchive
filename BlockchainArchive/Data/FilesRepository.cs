@@ -1,4 +1,5 @@
-﻿using BlockchainArchive.Models;
+﻿using BlockchainArchive.Data.Interfaces;
+using BlockchainArchive.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,21 @@ namespace BlockchainArchive.Data
             _context = context;
         }
 
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
         public async Task SaveAsync(File file)
         {
             await _context.AddAsync(file);
-            await _context.SaveChangesAsync();
+            await SaveChangesAsync();
+        }
+
+        public async Task SaveAsync(BlockchainHistory history)
+        {
+            await _context.AddAsync(history);
+            await SaveChangesAsync();
         }
 
         public async Task<IEnumerable<File>> GetFilesWithHistoryAsync()

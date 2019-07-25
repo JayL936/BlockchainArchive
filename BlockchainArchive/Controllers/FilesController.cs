@@ -78,14 +78,17 @@ namespace BlockchainArchive.Controllers
                 return new StatusCodeResult(StatusCodes.Status417ExpectationFailed);
         }
 
-        // POST: Files/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Verify(Guid id)
+        public async Task<IActionResult> Verify(Guid? id)
         {
-            throw new NotImplementedException();
+            if (!id.HasValue)
+                return BadRequest();
+
+            var isSuccess = await _filesManagementLogic.VerifyUploadedFile(id.Value);
+
+            if (isSuccess)
+                return RedirectToAction(nameof(Index));
+            else
+                return new StatusCodeResult(StatusCodes.Status417ExpectationFailed);
         }
 
         // GET: Files/Delete/5
