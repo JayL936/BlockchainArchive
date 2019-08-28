@@ -27,16 +27,16 @@ namespace BlockchainArchive.Logic
             _ethereumStorage = ethereumStorage;
         }
 
-        public async Task<bool> SaveUploadedFile(IFormFile uploadedFile)
+        public async Task<bool> SaveUploadedFile(UploadFileViewModel uploadedFile)
         {
-            var stream = uploadedFile.OpenReadStream();
-            var storageUri = await _blobStorage.UploadFile(stream, uploadedFile.FileName);
+            var stream = uploadedFile.FormFile.OpenReadStream();
+            var storageUri = await _blobStorage.UploadFile(stream, uploadedFile.FormFile.FileName);
 
             var file = new File
             {
                 StorageUrl = storageUri.AbsolutePath,
                 Guid = Guid.NewGuid(),
-                Name = uploadedFile.FileName,
+                Name = uploadedFile.FormFile.FileName,
                 HistoryEntries = new List<BlockchainHistory>()                
             };
 
