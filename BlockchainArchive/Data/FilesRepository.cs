@@ -38,6 +38,7 @@ namespace BlockchainArchive.Data
         {
             return await _context.Files
                 .Include(f => f.HistoryEntries)
+                .Include(f => f.FileOwners)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -46,6 +47,7 @@ namespace BlockchainArchive.Data
         {
             return await _context.Files
                 .Include(f => f.HistoryEntries)
+                .Include(f => f.FileOwners)
                 .FirstOrDefaultAsync(m => m.Guid == guid);
         }
 

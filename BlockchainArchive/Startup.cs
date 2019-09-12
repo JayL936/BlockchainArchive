@@ -49,15 +49,21 @@ namespace BlockchainArchive
 
             services.AddScoped<IFilesRepository, FilesRepository>();
             services.AddScoped<IBlockchainRepository, BlockchainRepository>();
+            services.AddScoped<IOwnersRepository, OwnersRepository>();
+
             services.AddScoped<IBlobStorage>(b => new BlobStorage(Configuration.GetConnectionString("StorageAccount")));
-            services.AddScoped<IFilesManagementLogic, FilesManagementLogic>();
-            services.AddScoped(provider => new Lazy<IFilesManagementLogic>(provider.GetService<IFilesManagementLogic>));
             services.AddScoped<IEthereumStorage>(e => 
                 new EthereumStorage(
-                    Configuration.GetSection("Ethereum").GetValue<string>("Address"), 
-                    Configuration.GetSection("Ethereum").GetValue<string>("Password"), 
+                    Configuration.GetSection("Ethereum").GetValue<string>("Address"),
+                    Configuration.GetSection("Ethereum").GetValue<string>("Password"),
                     e.GetService<IBlockchainRepository>()
-                ));
+                    ));
+
+            services.AddScoped<IFilesManagementLogic, FilesManagementLogic>();
+            services.AddScoped(provider => new Lazy<IFilesManagementLogic>(provider.GetService<IFilesManagementLogic>));
+            services.AddScoped<IOwnersManagementLogic, OwnersManagementLogic>();
+            services.AddScoped(provider => new Lazy<IOwnersManagementLogic>(provider.GetService<IOwnersManagementLogic>));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

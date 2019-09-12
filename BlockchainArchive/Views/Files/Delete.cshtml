@@ -1,4 +1,4 @@
-﻿@model BlockchainArchive.Models.FileViewModel
+﻿@model BlockchainArchive.Models.SavedFileViewModel
 
 @{
     ViewData["Title"] = "Delete";
@@ -33,6 +33,19 @@
                 var value = string.Format($"{Model.LastHistoryEntry.Status} - {dateTime}");
 
                 @Html.DisplayFor(modelitem => value);
+            }
+        </dd>        
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Owners)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Owners != null)
+            {
+                foreach (var owner in Model.Owners)
+                {
+                    var value = string.Format($"{owner.FirstName} {owner.LastName},");
+                    @Html.DisplayFor(modelitem => value);
+                }
             }
         </dd>
     </dl>

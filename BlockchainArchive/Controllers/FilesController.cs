@@ -17,21 +17,23 @@ namespace BlockchainArchive.Controllers
     public class FilesController : Controller
     {
         private readonly IFilesManagementLogic _filesManagementLogic;
+        private readonly IOwnersManagementLogic _ownersManagementLogic;
 
-        public FilesController(IFilesManagementLogic filesManagementLogic)
+        public FilesController(IFilesManagementLogic filesManagementLogic, IOwnersManagementLogic ownersManagementLogic)
         {
             _filesManagementLogic = filesManagementLogic;
+            _ownersManagementLogic = ownersManagementLogic;
         }
 
         // GET: Files
         public async Task<IActionResult> Index()
         {
             var files = await _filesManagementLogic.GetFilesWithHistoryAsync();
-            var model = new List<FileViewModel>();
+            var model = new List<SavedFileViewModel>();
 
             foreach(var file in files)
             {
-                model.Add(new FileViewModel(file));
+                model.Add(new SavedFileViewModel(file));
             };
 
             return View(model);
@@ -57,6 +59,16 @@ namespace BlockchainArchive.Controllers
         // GET: Files/Upload
         public IActionResult Upload()
         {
+            var owners = _ownersManagementLogic.GetOwnersAsync().GetAwaiter().GetResult();
+
+            var selectItems = new List<SelectListItem>();
+
+            foreach(var owner in owners)
+            {
+                selectItems.Add(new SelectListItem($"{owner.FirstName} {owner.LastName}", owner.Id.ToString()));
+            }
+
+            ViewBag.Owners = selectItems;
             return View();
         }
 
@@ -65,12 +77,12 @@ namespace BlockchainArchive.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upload(IFormFile file)
+        public async Task<IActionResult> Upload(UploadFileViewModel uploadedFile)
         {
-            if (file == null || file.Length == 0)
+            if (uploadedFile == null || uploadedFile.FormFile == null || uploadedFile.FormFile.Length == 0)
                 return BadRequest();
 
-            var isSuccess = await _filesManagementLogic.SaveUploadedFile(file);
+            var isSuccess = await _filesManagementLogic.SaveUploadedFile(uploadedFile);
 
             if (isSuccess)
                 return RedirectToAction(nameof(Index));
@@ -105,7 +117,7 @@ namespace BlockchainArchive.Controllers
                 return NotFound();
             }
 
-            return View(new FileViewModel(file));
+            return View(new SavedFileViewModel(file));
         }
 
         // POST: Files/Delete/5

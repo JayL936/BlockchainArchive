@@ -1,22 +1,22 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace BlockchainArchive.Models
 {
-    public class File
+    public class UploadFileViewModel
     {
         [Key]
-        public Guid Guid { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
-        public string StorageUrl { get; set; }
         public DateTime? CreationDate { get; set; }
         public string Author { get; set; }
         public string Purpose { get; set; }
-
-        public ICollection<BlockchainHistory> HistoryEntries { get; set; }
-        public ICollection<FileOwner> FileOwners { get; set; }
+        public List<int> OwnersIds { get; set; }
+        public IFormFile FormFile { get; set; }
     }
 }
